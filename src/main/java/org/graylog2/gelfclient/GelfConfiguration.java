@@ -16,8 +16,12 @@
 
 package org.graylog2.gelfclient;
 
+import io.netty.resolver.InetSocketAddressResolver;
+
 import java.io.File;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 
 /**
  * The configuration used by a {@link org.graylog2.gelfclient.transport.GelfTransport}.
@@ -40,6 +44,7 @@ public class GelfConfiguration {
     private int sendBufferSize = -1;
     private int maxInflightSends = 512;
     private int threads = 0;
+    private InetAddress[] addr;
 
     /**
      * Creates a new configuration with the given hostname and port.
@@ -109,9 +114,20 @@ public class GelfConfiguration {
      *
      * @return the remote address of the GELF server.
      */
-    public InetSocketAddress getRemoteAddress() {
+    public InetSocketAddress[] getRemoteAddress() throws UnknownHostException {
         // Always create a new InetSocketAddress to ensure that the hostname is resolved to an ip address again.
-        return new InetSocketAddress(hostname, port);
+        try {
+            addr = InetAddress.getAllByName(hostname);
+        } catch(UnknownHostException e) {
+            String host = null;
+            host = hostname;
+        }
+        InetSocketAddress[] sockAddr = new InetSocketAddress[addr.length];
+        for ( int i=0; i < addr.length; i++) {
+            sockAddr[i] = new InetSocketAddress(addr[i], port);
+        }
+//        return new InetSocketAddress(hostname, port);
+        return sockAddr;
     }
 
     /**

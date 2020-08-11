@@ -65,7 +65,7 @@ public class GelfUdpTransport extends AbstractGelfTransport {
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline().addLast(new GelfMessageUdpEncoder(config.getRemoteAddress()));
+                        ch.pipeline().addLast(new GelfMessageUdpEncoder(config.getRemoteAddress()[0]));
                         ch.pipeline().addLast(new GelfMessageChunkEncoder());
                         switch (config.getCompression()) {
                             case GZIP:
